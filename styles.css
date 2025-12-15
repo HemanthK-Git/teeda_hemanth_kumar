@@ -37,8 +37,8 @@
     --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Effects */
-    --glow-primary: 0 0 20px rgba(59, 130, 246, 0.4);
-    --glow-accent: 0 0 20px rgba(6, 182, 212, 0.4);
+   --glow-primary: 0 0 20px rgba(59, 130, 246, 0.4);
+--glow-accent: 0 0 20px rgba(6, 182, 212, 0.4); 
 }
 
 /* === RESET & BASE === */
