@@ -272,10 +272,6 @@ style.textContent = `
 document.head.appendChild(style);
 
 // ========== CONSOLE MESSAGE ==========
-console.log('%cðŸ‘‹ Welcome to my portfolio!', 'color: #667eea; font-size: 20px; font-weight: bold;');
-console.log('%cðŸš€ Built with HTML, CSS, and JavaScript', 'color: #764ba2; font-size: 14px;');
-console.log('%cðŸ“§ Contact: hemanthkumar199925@gmail.com', 'color: #10b981; font-size: 14px;');
-
-
-
-
+console.log('%c👋 Welcome to my portfolio!', 'color: #667eea; font-size: 20px; font-weight: bold;');
+console.log('%c🚀 Built with HTML, CSS, and JavaScript', 'color: #764ba2; font-size: 14px;');
+console.log('%c📬 Contact: hemanthkumar199925@gmail.com', 'color: #10b981; font-size: 14px;');
