@@ -202,7 +202,7 @@ scrollToTopBtn.style.cssText = `
     width: 50px;
     height: 50px;
     border-radius: 50%;
-   background: linear-gradient(135deg, #3b82f6, #2563eb); 
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border: none;
     cursor: pointer;
@@ -254,8 +254,8 @@ style.textContent = `
         to { transform: translateX(100%); opacity: 0; }
     }
     
-   .nav-links a.active {
-    color: #3b82f6 !important; 
+    .nav-links a.active {
+        color: #667eea !important;
         position: relative;
     }
     
@@ -266,12 +266,16 @@ style.textContent = `
         left: 0;
         width: 100%;
         height: 2px;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        background: linear-gradient(135deg, #667eea, #764ba2);
     }
 `;
 document.head.appendChild(style);
 
 // ========== CONSOLE MESSAGE ==========
-console.log('%c👋 Welcome to my portfolio!', 'color: #3b82f6; font-size: 20px; font-weight: bold;');
-console.log('%c🚀 Built with HTML, CSS, and JavaScript', 'color: #a0a0a0; font-size: 14px;');
-console.log('%c📧 Contact: hemanthkumar199925@gmail.com', 'color: #ffffff; font-size: 14px;');
+console.log('%cðŸ‘‹ Welcome to my portfolio!', 'color: #667eea; font-size: 20px; font-weight: bold;');
+console.log('%cðŸš€ Built with HTML, CSS, and JavaScript', 'color: #764ba2; font-size: 14px;');
+console.log('%cðŸ“§ Contact: hemanthkumar199925@gmail.com', 'color: #10b981; font-size: 14px;');
+
+
+
+
