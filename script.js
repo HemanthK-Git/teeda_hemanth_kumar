@@ -1,44 +1,67 @@
-// ========== MOBILE NAVIGATION ========== 
-const hamburger = document.querySelector('.hamburger');
-const navLinks = document.querySelector('.nav-links');
+// ============================================
+// MODERN PORTFOLIO JAVASCRIPT
+// Enhanced interactions and animations
+// ============================================
 
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navLinks.classList.toggle('active');
-});
+// === CUSTOM CURSOR ===
+const cursorDot = document.querySelector('[data-cursor-dot]');
+const cursorOutline = document.querySelector('[data-cursor-outline]');
 
-// Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        hamburger.classList.remove('active');
-        navLinks.classList.remove('active');
+if (cursorDot && cursorOutline) {
+    window.addEventListener('mousemove', (e) => {
+        const posX = e.clientX;
+        const posY = e.clientY;
+        
+        cursorDot.style.left = `${posX}px`;
+        cursorDot.style.top = `${posY}px`;
+        
+        cursorOutline.animate({
+            left: `${posX}px`,
+            top: `${posY}px`
+        }, { duration: 500, fill: 'forwards' });
     });
-});
-
-// ========== NAVBAR SCROLL EFFECT ==========
-const navbar = document.getElementById('navbar');
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
     
-    // Add shadow on scroll
-    if (currentScroll > 50) {
-        navbar.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.4)';
-    } else {
-        navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.3)';
-    }
+    // Scale cursor on hover
+    const interactiveElements = document.querySelectorAll('a, button, .project-card, .skill-item');
     
-    lastScroll = currentScroll;
-});
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        });
+        
+        el.addEventListener('mouseleave', () => {
+            cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+    });
+}
 
-// ========== SMOOTH SCROLL FOR NAVIGATION LINKS ==========
+// === MOBILE NAVIGATION ===
+const navToggle = document.getElementById('navToggle');
+const navMenu = document.getElementById('navMenu');
+
+if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        navToggle.classList.toggle('active');
+    });
+    
+    // Close menu when clicking on a link
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navToggle.classList.remove('active');
+        });
+    });
+}
+
+// === SMOOTH SCROLL ===
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
+        
         if (target) {
-            const offsetTop = target.offsetTop - 70; // Adjust for navbar height
+            const offsetTop = target.offsetTop - 70;
             window.scrollTo({
                 top: offsetTop,
                 behavior: 'smooth'
@@ -47,69 +70,98 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// ========== INTERSECTION OBSERVER FOR ANIMATIONS ==========
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
+// === NAVBAR SCROLL EFFECT ===
+const nav = document.querySelector('.nav');
+let lastScroll = 0;
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll > 100) {
+        nav.style.background = 'rgba(10, 10, 10, 0.95)';
+        nav.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
+    } else {
+        nav.style.background = 'rgba(10, 10, 10, 0.8)';
+        nav.style.boxShadow = 'none';
+    }
+    
+    lastScroll = currentScroll;
+});
+
+// === ANIMATED COUNTER ===
+const animateCounter = (el) => {
+    const target = parseInt(el.getAttribute('data-target'));
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+    
+    const updateCounter = () => {
+        current += step;
+        if (current < target) {
+            el.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        } else {
+            el.textContent = target + (el.textContent.includes('+') ? '+' : '');
+        }
+    };
+    
+    updateCounter();
 };
 
-const observer = new IntersectionObserver((entries) => {
+// === INTERSECTION OBSERVER FOR ANIMATIONS ===
+const observerOptions = {
+    threshold: 0.2,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+// Observe sections
+const sectionObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
+            
+            // Trigger counter animation for stats
+            if (entry.target.classList.contains('stats')) {
+                const counters = entry.target.querySelectorAll('[data-target]');
+                counters.forEach((counter, index) => {
+                    setTimeout(() => animateCounter(counter), index * 100);
+                });
+            }
         }
     });
 }, observerOptions);
 
-// Observe all sections for fade-in animation
+// Observe all major sections
 document.querySelectorAll('section').forEach(section => {
     section.style.opacity = '0';
     section.style.transform = 'translateY(30px)';
     section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(section);
+    sectionObserver.observe(section);
 });
 
-// ========== ANIMATE STATS ON SCROLL ==========
-const stats = document.querySelectorAll('.stat-item');
-const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
+// === STAGGERED CARD ANIMATIONS ===
+const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
-            entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+            setTimeout(() => {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }, index * 100);
         }
     });
 }, observerOptions);
 
-stats.forEach(stat => {
-    statsObserver.observe(stat);
-});
-
-// ========== ANIMATE CARDS ON SCROLL ==========
-const cards = document.querySelectorAll('.project-card, .achievement-card, .skill-category, .timeline-item');
-let delay = 0;
-
-cards.forEach(card => {
+document.querySelectorAll('.project-card, .highlight-card, .skill-category').forEach(card => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(30px)';
-    card.style.transition = `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`;
-    
-    const cardObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
+    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
     cardObserver.observe(card);
-    delay += 0.1;
-    if (delay > 0.5) delay = 0; // Reset delay after 5 cards
 });
 
-// ========== ACTIVE NAVIGATION HIGHLIGHT ==========
-const sections = document.querySelectorAll('section');
-const navItems = document.querySelectorAll('.nav-links a');
+// === ACTIVE NAV LINK HIGHLIGHT ===
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
 
 window.addEventListener('scroll', () => {
     let current = '';
@@ -117,161 +169,266 @@ window.addEventListener('scroll', () => {
     sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
-        if (window.pageYOffset >= (sectionTop - 100)) {
+        
+        if (window.pageYOffset >= sectionTop - 150) {
             current = section.getAttribute('id');
         }
     });
     
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href') === `#${current}`) {
-            item.classList.add('active');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
         }
     });
 });
 
-// ========== TYPING EFFECT FOR HERO SUBTITLE ==========
-const subtitle = document.querySelector('.hero h2');
-if (subtitle) {
-    const text = subtitle.textContent;
-    subtitle.textContent = '';
-    let i = 0;
-    
-    setTimeout(() => {
-        const typeWriter = () => {
-            if (i < text.length) {
-                subtitle.textContent += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 50);
-            }
-        };
-        typeWriter();
-    }, 1000);
-}
-
-// ========== PARALLAX EFFECT FOR HERO SECTION ==========
+// === PARALLAX EFFECT FOR HERO ===
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero-content');
-    if (hero) {
-        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-        hero.style.opacity = 1 - scrolled / 700;
+    const heroContent = document.querySelector('.hero-content');
+    
+    if (heroContent && scrolled < window.innerHeight) {
+        heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
+        heroContent.style.opacity = 1 - (scrolled / 600);
     }
 });
 
-// ========== COPY EMAIL TO CLIPBOARD ==========
-const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
-emailLinks.forEach(link => {
+// === SCROLL TO TOP BUTTON ===
+const createScrollButton = () => {
+    const button = document.createElement('button');
+    button.className = 'scroll-to-top';
+    button.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    button.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--color-primary);
+        color: var(--color-bg);
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 999;
+        box-shadow: var(--glow-primary);
+    `;
+    
+    document.body.appendChild(button);
+    
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 500) {
+            button.style.opacity = '1';
+            button.style.visibility = 'visible';
+        } else {
+            button.style.opacity = '0';
+            button.style.visibility = 'hidden';
+        }
+    });
+    
+    button.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    button.addEventListener('mouseenter', () => {
+        button.style.transform = 'scale(1.1)';
+    });
+    
+    button.addEventListener('mouseleave', () => {
+        button.style.transform = 'scale(1)';
+    });
+};
+
+createScrollButton();
+
+// === EMAIL COPY TO CLIPBOARD ===
+document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
-        const email = link.textContent;
+        const email = link.querySelector('.method-value')?.textContent || link.textContent;
+        
         navigator.clipboard.writeText(email).then(() => {
-            // Create and show tooltip
-            const tooltip = document.createElement('div');
-            tooltip.textContent = 'Email copied!';
-            tooltip.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: #10b981;
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                z-index: 9999;
-                animation: slideIn 0.3s ease;
-            `;
-            document.body.appendChild(tooltip);
-            
-            setTimeout(() => {
-                tooltip.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => tooltip.remove(), 300);
-            }, 2000);
+            showToast('Email copied to clipboard!', 'success');
+        }).catch(() => {
+            // Fallback: open mailto
+            window.location.href = link.href;
         });
     });
 });
 
-// ========== SCROLL TO TOP BUTTON ==========
-const scrollToTopBtn = document.createElement('button');
-scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-scrollToTopBtn.className = 'scroll-to-top';
-scrollToTopBtn.style.cssText = `
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 999;
-`;
+// === TOAST NOTIFICATION ===
+const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? 'var(--color-primary)' : 'var(--color-surface)'};
+        color: ${type === 'success' ? 'var(--color-bg)' : 'var(--color-text)'};
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        z-index: 10000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+};
 
-document.body.appendChild(scrollToTopBtn);
-
-window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 300) {
-        scrollToTopBtn.style.opacity = '1';
-        scrollToTopBtn.style.visibility = 'visible';
-    } else {
-        scrollToTopBtn.style.opacity = '0';
-        scrollToTopBtn.style.visibility = 'hidden';
-    }
-});
-
-scrollToTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-});
-
-scrollToTopBtn.addEventListener('mouseenter', () => {
-    scrollToTopBtn.style.transform = 'scale(1.1)';
-});
-
-scrollToTopBtn.addEventListener('mouseleave', () => {
-    scrollToTopBtn.style.transform = 'scale(1)';
-});
-
-// ========== ADD ANIMATIONS KEYFRAMES ==========
+// === ADD ANIMATION KEYFRAMES ===
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+    @keyframes slideUp {
+        from {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     }
     
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
+    @keyframes slideDown {
+        from {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+        }
     }
     
-    .nav-links a.active {
-        color: #667eea !important;
-        position: relative;
+    .nav-link.active {
+        color: var(--color-primary);
     }
     
-    .nav-links a.active::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+    .nav-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 6px);
+    }
+    
+    .nav-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .nav-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
     }
 `;
 document.head.appendChild(style);
 
-// ========== CONSOLE MESSAGE ==========
-console.log('%c👋 Welcome to my portfolio!', 'color: #667eea; font-size: 20px; font-weight: bold;');
-console.log('%c🚀 Built with HTML, CSS, and JavaScript', 'color: #764ba2; font-size: 14px;');
-console.log('%c📬 Contact: hemanthkumar199925@gmail.com', 'color: #10b981; font-size: 14px;');
+// === TYPING EFFECT FOR HERO ROLE ===
+const heroRole = document.querySelector('.hero-role');
+if (heroRole) {
+    const text = heroRole.textContent;
+    heroRole.textContent = '';
+    let i = 0;
+    
+    const typeWriter = () => {
+        if (i < text.length) {
+            heroRole.textContent += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 100);
+        }
+    };
+    
+    setTimeout(typeWriter, 1500);
+}
+
+// === SKILL ITEM HOVER EFFECT ===
+document.querySelectorAll('.skill-item').forEach(skill => {
+    skill.addEventListener('click', () => {
+        skill.style.animation = 'pulse 0.5s ease';
+        setTimeout(() => {
+            skill.style.animation = '';
+        }, 500);
+    });
+});
+
+// === PROJECT CARD TILT EFFECT (Desktop Only) ===
+if (window.innerWidth > 768) {
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+}
+
+// === LAZY LOAD ANIMATIONS ===
+const observeLazy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observeLazy.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.stat-item, .timeline-item').forEach(el => {
+    observeLazy.observe(el);
+});
+
+// === CONSOLE BRANDING ===
+console.log(
+    '%c👋 Welcome to My Portfolio!',
+    'color: #3b82f6; font-size: 20px; font-weight: bold; font-family: monospace;'
+);
+console.log(
+    '%c🚀 Built with: HTML, CSS, JavaScript',
+    'color: #a0a0a0; font-size: 14px; font-family: monospace;'
+);
+console.log(
+    '%c💼 Want to work together? Let\'s connect!',
+    'color: #3b82f6; font-size: 14px; font-family: monospace;'
+);
+console.log(
+    '%c📧 hemanthkumar199925@gmail.com',
+    'color: #ffffff; font-size: 14px; font-family: monospace;'
+);
+
+// === PERFORMANCE MONITORING ===
+window.addEventListener('load', () => {
+    const perfData = performance.timing;
+    const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+    console.log(`⚡ Page loaded in ${pageLoadTime}ms`);
+});
+
+// === PREVENT CONTEXT MENU ON CUSTOM CURSOR (Optional) ===
+if (cursorDot && cursorOutline) {
+    document.addEventListener('contextmenu', (e) => {
+        if (e.target === document.body) {
+            e.preventDefault();
+        }
+    });
+}
